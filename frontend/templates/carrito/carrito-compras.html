@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>Proceso de Pago</h1>
+<p>Por favor, haz click en el botón para continuar con el pago.</p>
+<button onclick="redirectToPayment()">Pagar Ahora</button>
+
+
+
+{% block scripts %}
+<script>
+    function redirectToPayment() {
+        const url = "https://webpay3gint.transbank.cl/webpayserver/initTransaction";
+        const token = "01ab4445dbb4b30eaaec633cbe2d0dcbe114ae86e22fbe800ab35adc3556a80f";
+        window.location.href = `${url}?token_ws=${token}`;
+    }
+</script>
+{% endblock scripts %}
+{% endblock content %}
