@@ -5,9 +5,14 @@ from rest_framework import status
 from transbank.error.transbank_error import TransbankError
 from transbank.webpay.webpay_plus.transaction import Transaction as TransbankTransaction
 from .models import Transaction
-from .serializers import TransactionSerializer
+from .serializers import TransactionSerializer, ProductoSerializer, UsuarioSerializer
 from django.conf import settings
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
+from rest_framework import generics
+from backend.models import Producto, Usuario
+from rest_framework.decorators import api_view
+from django.http import HttpResponse
+from django.shortcuts import render
 
 class CreateTransaction(APIView):
     def post(self, request):
@@ -25,13 +30,16 @@ class CreateTransaction(APIView):
                     buy_order=transaction.buy_order,
                     session_id=transaction.session_id,
                     amount=transaction.amount,
-                    return_url='http://127.0.0.1:8000/api/transactions/'
+                    return_url='http://127.0.0.1:8000/api/payment-success/'
                 )
 
                 # Actualiza la transacción con la información recibida de Transbank
-                transaction.status = 'completed'  # Este estado debería ajustarse según la respuesta de Transbank
-                transaction.token = response['token']  # Accede al token usando corchetes ya que es un diccionario
-                transaction.url = response['url']     # Accede a la URL usando corchetes
+                # Este estado debería ajustarse según la respuesta de Transbank
+                transaction.status = 'completed'
+                # Accede al token usando corchetes ya que es un diccionario
+                transaction.token = response['token']
+                # Accede a la URL usando corchetes
+                transaction.url = response['url']
                 transaction.save()
 
                 # Devuelve la URL y token para redirección del lado del cliente
@@ -55,6 +63,7 @@ class CreateTransaction(APIView):
             # Devuelve errores de validación
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TransactionList(ListAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
@@ -63,3 +72,63 @@ class TransactionList(ListAPIView):
 class TransactionDetail(RetrieveUpdateDestroyAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+
+
+class ProductoList(APIView):
+    """
+    List all products, or create a new product.
+    """
+
+    def get(self, request, format=None):
+        productos = Producto.objects.all()
+        serializer = ProductoSerializer(productos, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ProductoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+def crear_usuario_api(request):
+    if request.method == 'POST':
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def listar_Usuario_api(request,):
+    if request.method == 'GET':
+        usuarios = Usuario.objects.all()
+        serializer = UsuarioSerializer(usuarios, many=True)
+    return Response(serializer.data)
+
+
+def payment_success(request):
+    token_ws = request.GET.get('token_ws')
+    if token_ws:
+        # Busca la transacción usando session_id
+        try:
+            transaction = Transaction.objects.get(token_ws=token_ws)
+            
+            if transaction.status == 'completed':
+                # Si la transacción está completada, muestra una página de éxito.
+                return render(request, 'carrito/success.html', {'transaction': transaction})
+            else:
+                # Si la transacción no está completada, muestra un mensaje apropiado.
+                return render(request, 'carrito/payment_error.html', {'message': 'La transacción no ha sido completada.'})
+        except Transaction.DoesNotExist:
+            # Si no se encuentra ninguna transacción con ese session_id
+            return render(request, 'carrito/payment_error.html', {'message': 'No se encontró la transacción.'})
+    else:
+        # Si no se proporciona token
+        return HttpResponse("Token de transacción no proporcionado.", status=400)
+
+
+# Asegúrate de tener las plantillas payment_success.html y payment_error.html para manejar estas respuestas.

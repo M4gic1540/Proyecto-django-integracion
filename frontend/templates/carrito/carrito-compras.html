@@ -1,20 +1,75 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 <h1>Proceso de Pago</h1>
 <p>Por favor, haz click en el botón para continuar con el pago.</p>
-<button onclick="redirectToPayment()">Pagar Ahora</button>
 
-
+<form id="transactionForm">
+    <label for="buy_order">Orden de Compra:</label>
+    <input type="text" id="buy_order" required>
+    <label for="session_id">ID de Sesión:</label>
+    <input type="text" id="session_id" required>
+    <label for="amount">Monto:</label>
+    <input type="number" id="amount" required>
+    <button type="button" onclick="submitTransaction()">Enviar Transacción</button>
+</form>
+{% endblock content %}
 
 {% block scripts %}
 <script>
-    function redirectToPayment() {
-        const url = "https://webpay3gint.transbank.cl/webpayserver/initTransaction";
-        const token = "01ab4445dbb4b30eaaec633cbe2d0dcbe114ae86e22fbe800ab35adc3556a80f";
-        window.location.href = `${url}?token_ws=${token}`;
+    function submitTransaction() {
+        const formData = {
+            buy_order: document.getElementById('buy_order').value,
+            session_id: document.getElementById('session_id').value,
+            amount: document.getElementById('amount').value
+        };
+
+        fetch('http://127.0.0.1:8000/api/create-transaction/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.url && data.token) {
+                    window.location.href = `${data.url}?token_ws=${data.token}`;
+                } else {
+                    alert('La transacción no se pudo iniciar correctamente.');
+                }
+            })
+            .then(data => {
+                console.log('Success:', data);
+                if (data.url && data.token) {
+                    window.location.href = `${data.url}?token_ws=${data.token}`;
+                } else {
+                    // Redirige a la página de éxito si la transacción es exitosa y el backend lo confirma
+                    window.location.href = '/payment-success/';
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Hubo un problema con la solicitud de transacción.');
+            });
     }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
 </script>
 {% endblock scripts %}
-{% endblock content %}

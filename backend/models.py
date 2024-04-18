@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.urls import reverse
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class UsuarioManager(BaseUserManager):
     def _create_user(self, username, email, nombre, apellido, password, is_staff, is_superuser, **extra_fields):
@@ -70,3 +73,109 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.nombre
+
+
+# Modelo de Categoría para productos
+class Categoria(models.Model):
+    nombre = models.CharField('Nombre de la categoría', max_length=100)
+    descripcion = models.TextField('Descripción', blank=True)
+
+    class Meta:
+        verbose_name = 'Categoría'
+        verbose_name_plural = 'Categorías'
+
+    def __str__(self):
+        return self.nombre
+
+# Modelo de Producto
+class Producto(models.Model):
+    nombre = models.CharField('Nombre del producto', max_length=255)
+    descripcion = models.TextField('Descripción', blank=True)
+    precio = models.DecimalField('Precio', max_digits=10, decimal_places=2)
+    stock = models.IntegerField('Stock disponible')
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos')
+    imagen = models.ImageField('Imagen del producto', upload_to='productos/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Producto'
+        verbose_name_plural = 'Productos'
+
+    def __str__(self):
+        return self.nombre
+
+    def get_absolute_url(self):
+        return reverse('producto_detalle', kwargs={'pk': self.pk})
+
+# Modelo de Pedido
+class Pedido(models.Model):
+    ESTADO_CHOICES = (
+        ('en_carrito', 'En Carrito'),
+        ('pendiente', 'Pendiente'),
+        ('procesando', 'Procesando'),
+        ('enviado', 'Enviado'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
+    )
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
+    fecha_creacion = models.DateTimeField('Fecha de creación', auto_now_add=True)
+    actualizado_en = models.DateTimeField('Última actualización', auto_now=True)
+    estado = models.CharField('Estado', max_length=20, choices=ESTADO_CHOICES, default='en_carrito')
+    completado = models.BooleanField('Pedido completado', default=False)
+
+    class Meta:
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
+
+    def __str__(self):
+        return f'Pedido {self.id} - {self.usuario}'
+
+    def get_total(self):
+        total = sum(item.get_cost() for item in self.items.all())
+        return total
+
+# Modelo de Item de Pedido
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, related_name='items')
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='item_pedidos')
+    precio = models.DecimalField('Precio', max_digits=10, decimal_places=2)
+    cantidad = models.IntegerField('Cantidad', default=1)
+
+    class Meta:
+        verbose_name = 'Item de Pedido'
+        verbose_name_plural = 'Items de Pedido'
+
+    def __str__(self):
+        return f'{self.cantidad} x {self.producto.nombre} - {self.pedido}'
+
+    def clean(self):
+        """ Verifica que la cantidad no exceda el stock disponible. """
+        if self.cantidad > self.producto.stock:
+            raise ValidationError(f'No hay suficiente stock para {self.producto.nombre}. Disponible: {self.producto.stock}, solicitado: {self.cantidad}.')
+
+    def save(self, *args, **kwargs):
+        """ Actualiza el stock del producto al guardar el item del pedido. """
+        if self.pk is None:  # Nuevo objeto, reducir el stock
+            self.producto.stock -= self.cantidad
+        else:  # Objeto existente, verificar la diferencia en la cantidad
+            original = ItemPedido.objects.get(pk=self.pk)
+            if self.cantidad != original.cantidad:
+                self.producto.stock -= self.cantidad - original.cantidad
+        self.producto.save()
+        super().save(*args, **kwargs)
+
+    @property
+    def get_cost(self):
+        """ Retorna el costo total del item de pedido. """
+        return self.precio * self.cantidad
+    
+class Carrito(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carritos')
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Carrito de {self.usuario.username}'
+
+    def get_total_cost(self):
+        return sum(item.get_cost() for item in self.items.all())

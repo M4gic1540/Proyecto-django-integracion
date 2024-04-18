@@ -1,8 +1,9 @@
 from django.urls import path
-from api.views import CreateTransaction
 from . import views
 
 urlpatterns = [
-    path('create-transaction/', CreateTransaction.as_view(), name='create-transaction'),
+    path('', views.home, name='home'),
     path('carrito/',views.carrito, name='carrito'),
-]
+    path('accounts/panel',views.panel, name='panel'),
+
+]   

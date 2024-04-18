@@ -15,6 +15,7 @@ class Transaction(models.Model):
     response_code = models.IntegerField(null=True, blank=True)
     transaction_date = models.DateTimeField(auto_now_add=True)
     last_update = models.DateTimeField(auto_now=True)
+    token_ws = models.CharField(max_length=128, unique=True, null=True, blank=True)
 
     def __str__(self):
         return f'Transaction {self.buy_order} - {self.status}'

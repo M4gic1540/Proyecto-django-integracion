@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<img id="img-login" src="/static/imagenes/img-login.jpg">
+<div id="contenedor-login" class="container">
+    <div class="row">
+        <form method="POST" class="col s6">
+            {% csrf_token %}
+            <div class="row">
+                <div style="margin-top: 30px;" class="input-field col s12">
+                    <label for="usuario">Nombre de usuario: </label>
+                    <input type="text" name="usuario" id="idUsuario">
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <label for="contraseña">Contraseña: </label>
+                    <input type="password" name="contraseña" id="idContraseña">
+                </div>
+            </div>
+            <input style="width: 200px; margin-top: 50px;" class="btn wave-effect" type="submit" name="boton" id="idBoton" value="Ingresar">
+            <a class="center" href="#">Inicia sesion con Google</a>
+            <a class="center" href="#">Inicia sesion con Facebook</a>
+            <p class="center">Todavia no tienes cuenta? Registrate <a href="registro">Aquì</a></p>
+            <p class="center">Olvidaste tu contraseña? Recuperala <a href="recuperar_contraseña">Aquì</a></p>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/productos/')
+            .then(response => response.json())
+            .then(data => {
+                const lista = document.getElementById('lista-productos');
+                data.forEach(producto => {
+                    const item = document.createElement('li');
+                    item.textContent = `${producto.nombre} - $${producto.precio}`;
+                    lista.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error al cargar los productos:', error));
+    });
+</script>
+
+<body>
+    <h1>Productos</h1>
+    <ul id="lista-productos"></ul>
+
+    <h2>Agregar un nuevo producto</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Agregar Producto</button>
+    </form>
+</body>
+{% endblock %}
