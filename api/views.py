@@ -92,6 +92,7 @@ class ProductoList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+
 @api_view(['POST'])
 def crear_usuario_api(request):
     if request.method == 'POST':
@@ -100,14 +101,18 @@ def crear_usuario_api(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'detail': 'Método no permitido'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])
-def listar_Usuario_api(request,):
+def listar_Usuario_api(request):
     if request.method == 'GET':
         usuarios = Usuario.objects.all()
         serializer = UsuarioSerializer(usuarios, many=True)
-    return Response(serializer.data)
+        return Response(serializer.data)
+    else:
+        return Response({'detail': 'Método no permitido'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 def payment_success(request):

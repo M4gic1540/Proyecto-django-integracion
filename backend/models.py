@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.urls import reverse
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 class UsuarioManager(BaseUserManager):
     def _create_user(self, username, email, nombre, apellido, password, is_staff, is_superuser, **extra_fields):
@@ -137,7 +138,7 @@ class Pedido(models.Model):
 # Modelo de Item de Pedido
 class ItemPedido(models.Model):
     pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, related_name='items')
-    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='item_pedidos')
+    producto = models.ForeignKey('Producto', on_delete=models.PROTECT, related_name='item_pedidos')
     precio = models.DecimalField('Precio', max_digits=10, decimal_places=2)
     cantidad = models.IntegerField('Cantidad', default=1)
 
@@ -153,21 +154,27 @@ class ItemPedido(models.Model):
         if self.cantidad > self.producto.stock:
             raise ValidationError(f'No hay suficiente stock para {self.producto.nombre}. Disponible: {self.producto.stock}, solicitado: {self.cantidad}.')
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
-        """ Actualiza el stock del producto al guardar el item del pedido. """
+        """ Actualiza el stock del producto al guardar el item del pedido dentro de una transacción atómica. """
         if self.pk is None:  # Nuevo objeto, reducir el stock
             self.producto.stock -= self.cantidad
+            self.producto.save()
         else:  # Objeto existente, verificar la diferencia en la cantidad
             original = ItemPedido.objects.get(pk=self.pk)
             if self.cantidad != original.cantidad:
-                self.producto.stock -= self.cantidad - original.cantidad
-        self.producto.save()
+                # Ajustar el stock basado en la diferencia
+                self.producto.stock += original.cantidad - self.cantidad
+                self.producto.save()
         super().save(*args, **kwargs)
+        self.producto.refresh_from_db()  # Recargar el estado del producto para reflejar cambios recientes en el stock
 
     @property
     def get_cost(self):
         """ Retorna el costo total del item de pedido. """
         return self.precio * self.cantidad
+    
+    
     
 class Carrito(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carritos')

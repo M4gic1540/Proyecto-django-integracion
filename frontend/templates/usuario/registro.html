@@ -2,35 +2,35 @@
 {% load static %}
 
 
-    {% block content %}
-    
-    <h1>Crear Usuario</h1>
-    <form id="userForm">
-        Nombre: <input type="text" id="nombre"><br>
-        Apellido: <input type="text" id="apellido"><br>
-        Usuario: <input type="text" id="username"><br>
-        Email: <input type="email" id="email"><br>
-        Contraseña: <input type="password" id="password"><br>
-        <button type="button" onclick="submitUser()">Crear Usuario</button>
-    </form>
+{% block content %}
 
-    <script>
-        function submitUser() {
-            const data = {
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-            };
+<h1>Crear Usuario</h1>
+<form id="userForm">
+    Nombre: <input type="text" id="nombre"><br>
+    Apellido: <input type="text" id="apellido"><br>
+    Usuario: <input type="text" id="username"><br>
+    Email: <input type="email" id="email"><br>
+    Contraseña: <input type="password" id="password"><br>
+    <button type="button" onclick="submitUser()">Crear Usuario</button>
+</form>
 
-            fetch('/api/usuarios/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
+<script>
+    function submitUser() {
+        const data = {
+            nombre: document.getElementById('nombre').value,
+            apellido: document.getElementById('apellido').value,
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+        };
+
+        fetch('/api/usuarios/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
@@ -39,6 +39,6 @@
             .catch((error) => {
                 console.error('Error:', error);
             });
-        }
-    </script>
-    {% endblock %}
+    }
+</script>
+{% endblock %}

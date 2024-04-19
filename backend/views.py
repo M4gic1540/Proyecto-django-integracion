@@ -11,6 +11,7 @@ from transbank.webpay.webpay_plus.transaction import Transaction as TransbankTra
 from rest_framework import status
 from transbank.error.transbank_error import TransbankError
 from rest_framework.decorators import api_view
+import requests
 # Create your views here.
 
 
@@ -183,20 +184,21 @@ def deslogear(request):
     return redirect('login')
 
 
-@login_required(login_url='login')
-def listarUsuarios(request):
-    if request.user.is_superuser == False:
-        return redirect('panel')
-    usuarios = Usuario.objects.all()
-    context = {'usuarios': usuarios}
-    return render(request, 'usuarios/crud/listar.html', context)
+#@login_required(login_url='login')
+#def listarUsuarios(request):
+#    if request.user.is_superuser == False:
+#        return redirect('panel')
+#    usuarios = Usuario.objects.all()
+#    context = {'usuarios': usuarios}
+#    return render(request, 'usuarios/crud/listar.html', context)
 
 
 # VISTAS PARA PRODUCTOS
 
-def listar_productos(request):
-    productos = Producto.objects.all()
-    return render(request, 'productos/listar_productos.html', {'productos': productos})
+def listar_usuarios(request):
+    response = requests.get('http://localhost:8000/api/usuarios/listar/')  # Asegúrate de usar la URL correcta de tu API
+    usuarios = response.json() if response.status_code == 200 else []
+    return render(request, 'usuario/crud/listar_usuarios.html', {'usuarios': usuarios})
 
 
 def agregar_producto(request):

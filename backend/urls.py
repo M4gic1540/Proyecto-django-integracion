@@ -11,7 +11,7 @@ urlpatterns = [
     path('accounts/panel',views.panel, name='panel'),
     path('home/', views.home, name='home'),
         # Rutas para Productos
-    path('productos/listar/', views.listar_productos, name='listar_productos'),
+    #path('productos/listar/', views.listar_productos, name='listar_productos'),
     path('productos/agregar/', views.agregar_producto, name='agregar_producto'),
     path('productos/editar/<int:producto_id>/', views.editar_producto, name='editar_producto'),
 
@@ -24,4 +24,7 @@ urlpatterns = [
     path('items_pedido/listar/', views.listar_items_pedido, name='listar_items_pedido'),
     path('items_pedido/agregar/', views.agregar_item_pedido, name='agregar_item_pedido'),
     path('items_pedido/editar/<int:item_id>/', views.editar_item_pedido, name='editar_item_pedido'),
+
+    # RUTAS PARA USUARIOS DE API
+    path('usuarios/listar/', views.listar_usuarios, name='listar_usuarios_api'),
 ]
