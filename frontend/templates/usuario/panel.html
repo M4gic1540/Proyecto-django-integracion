@@ -1,19 +1,150 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
-<link rel="stylesheet" href="styles.css">
-<link rel="shortcut icon" href="favicon.png" type="image/png">
-<title>Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza tu archivo de estilos CSS -->
 </head>
+<script>
+    // Realizar la petición GET a la API
+    fetch('/api/transactions')
+        .then(response => {
+            // Verificar si la respuesta es exitosa (código de estado 200)
+            if (response.ok) {
+                // Convertir la respuesta a JSON
+                return response.json();
+            }
+            // En caso de error, lanzar una excepción
+            throw new Error('Error al obtener los datos de ventas');
+        })
+        .then(data => {
+            // Actualizar el contenido del elemento con id "sales-count" con la cantidad de ventas
+            document.getElementById('sales-count').textContent = data.length;
+        })
+        .catch(error => {
+            // Capturar errores de red u otros errores
+            console.error('Error de red:', error);
+        });
+
+    // Función para obtener los últimos pedidos
+    function obtenerUltimosPedidos() {
+        // Realizar la petición GET a la API de pedidos
+        fetch('/api/usuarios/listar')
+            .then(response => {
+                // Verificar si la respuesta es exitosa (código de estado 200)
+                if (response.ok) {
+                    // Convertir la respuesta a JSON
+                    return response.json();
+                }
+                // En caso de error, lanzar una excepción
+                throw new Error('Error al obtener los últimos pedidos');
+            })
+            .then(data => {
+                // Manipular los datos recibidos (en este caso, asumimos que data es un arreglo de pedidos)
+                console.log('Últimos pedidos:', data);
+                // Llamar a la función para mostrar los últimos pedidos en la tabla
+                mostrarUltimosPedidos(data);
+            })
+            .catch(error => {
+                // Capturar errores de red u otros errores
+                console.error('Error de red:', error);
+            });
+    }
+
+    // Función para mostrar los últimos pedidos en una tabla
+    function mostrarUltimosPedidos(pedidos) {
+        // Seleccionar el cuerpo de la tabla donde se mostrarán los pedidos
+        const tbody = document.getElementById('last-orders-table-body');
+        // Limpiar el contenido existente de la tabla
+        tbody.innerHTML = '';
+
+        // Iterar sobre cada pedido en el arreglo de pedidos
+        pedidos.forEach(pedido => {
+            // Crear una nueva fila de la tabla
+            const fila = document.createElement('tr');
+
+            // Crear celdas para cada columna de la fila (ID, Fecha, Total, etc.)
+            const idCell = document.createElement('td');
+            idCell.textContent = pedido.id;
+
+            const fechaCell = document.createElement('td');
+            fechaCell.textContent = pedido.fecha;
+
+            const totalCell = document.createElement('td');
+            totalCell.textContent = pedido.total;
+
+            // Agregar las celdas a la fila
+            fila.appendChild(idCell);
+            fila.appendChild(fechaCell);
+            fila.appendChild(totalCell);
+
+            // Agregar la fila al cuerpo de la tabla
+            tbody.appendChild(fila);
+        });
+    }
+
+    // Llamar a la función para obtener los últimos pedidos cuando la página se cargue
+    window.onload = function () {
+        obtenerUltimosPedidos();
+    };
+
+</script>
+
 <body>
-<h1>esto es el panel</h1>
+
+    <!-- Encabezado del panel de administración -->
+    <header>
+        <h1>Panel de Administración</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Productos</a></li>
+                <li><a href="#">Pedidos</a></li>
+                <li><a href="#">Clientes</a></li>
+                <li><a href="#">Configuración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido del panel de administración -->
+    <main>
+        <!-- Sección para mostrar la cantidad de ventas -->
+        <section id="sales-section">
+            <h2>Cantidad de Ventas</h2>
+            <p id="sales-count">Cargando...</p>
+        </section>
+
+        <!-- Sección para mostrar los primeros pedidos -->
+        <section>
+            <h2>Últimos Pedidos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="last-orders-table-body">
+                    <!-- Aquí se insertarán dinámicamente las filas de la tabla -->
+                </tbody>
+            </table>
+        </section>
 
 
+        <section>
+            <h2>Productos Populares</h2>
+            <!-- Agrega una lista de productos más vendidos o más populares -->
+        </section>
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
-<script src="script.js"></script>
+    <!-- Pie de página del panel de administración -->
+    <footer>
+        <p>Panel de Administración - © 2024</p>
+    </footer>
+
 </body>
+
 </html>

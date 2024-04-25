@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Pedidos totales{% endblock %}
+
+{% block content %}
+<h1>Listado de Pedidos</h1>
+<div id="lista-pedidos"></div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Función para obtener los pedidos
+        function obtenerPedidos() {
+            // URL de la API de pedidos
+            const url = 'http://localhost:8000/api/pedidos/';
+
+            // Realiza la solicitud GET a la API
+            fetch(url)
+                .then(response => {
+                    // Verifica si la respuesta fue exitosa (código de estado 200)
+                    if (response.ok) {
+                        // Retorna los datos de los pedidos en formato JSON
+                        return response.json();
+                    } else {
+                        // Si la respuesta no fue exitosa, muestra el código de estado
+                        console.error('Error al obtener los pedidos:', response.status);
+                    }
+                })
+                .then(data => {
+                    // Maneja los datos de los pedidos obtenidos
+                    if (data) {
+                        console.log('Pedidos obtenidos:', data);
+                        // Llama a la función para mostrar los pedidos en el HTML
+                        mostrarPedidos(data);
+                    }
+                })
+                .catch(error => {
+                    // Maneja errores de conexión u otros errores relacionados con la solicitud
+                    console.error('Error de conexión:', error);
+                });
+        }
+
+        // Función para mostrar los pedidos en el HTML
+        function mostrarPedidos(pedidos) {
+            const listaPedidos = document.getElementById('lista-pedidos');
+            listaPedidos.innerHTML = ''; // Limpiar el contenido anterior
+
+            // Recorre cada pedido y crea un elemento de lista para mostrarlo
+            pedidos.forEach(pedido => {
+                const pedidoElemento = document.createElement('div');
+                pedidoElemento.innerHTML = `
+                <p>ID del Pedido: ${pedido.id}</p>
+                <p>Fecha de Creación: ${pedido.fecha_creacion}</p>
+                <p>Estado: ${pedido.estado}</p>
+                <p>Completado: ${pedido.completado}</p>
+                <hr>
+            `;
+                listaPedidos.appendChild(pedidoElemento);
+            });
+        }
+
+        // Llama a la función para obtener los pedidos cuando el contenido esté cargado
+        obtenerPedidos();
+    });
+
+</script>
+{% endblock content %}

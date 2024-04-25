@@ -1,0 +1,152 @@
+/* Estilos generales para el cuerpo de la página */
+body {
+  background: rgb(0, 0, 0); /* Fondo negro */
+  background-image: url("/static/img/fondo.png"); /* Imagen de fondo */
+  background-size: cover; /* Tamaño de la imagen de fondo: cubrir */
+  background-repeat: no-repeat; /* No repetir la imagen de fondo */
+  box-shadow: inset 500px 0 0 900px rgba(0, 0, 0, 0.4); /* Sombra interior para crear un efecto de borde */
+  font-family: "Merriweather Sans", sans-serif; /* Fuente para el cuerpo de la página */
+  font-size: 12px; /* Tamaño de fuente base */
+}
+
+/* Estilos para la sección de productos */
+.products {
+  padding: 50px 0; /* Espaciado interno superior e inferior */
+  text-align: center; /* Alineación del texto al centro */
+  margin-top: 10px; /* Margen superior */
+}
+
+/* Estilos para los elementos destacados del carrusel */
+.highlight-1,
+.highlight-2,
+.highlight-3 {
+  background: linear-gradient(
+    110deg,
+    #adadad,
+    #ffffff
+  ); /* Fondo con degradado */
+  background-color: #ffffff; /* Color de fondo adicional */
+  margin: 20px; /* Margen exterior */
+  border-radius: 33px; /* Radio de borde */
+  box-shadow: 5px 5px 10px #000000, -5px -5px 10px #000000; /* Sombra con efecto 3D */
+  max-width: 80%; /* Ancho máximo */
+  width: 80vw; /* Ancho relativo */
+  display: inline-block; /* Mostrar en línea */
+  vertical-align: top; /* Alinear arriba */
+}
+
+/* Estilos para los encabezados dentro de los elementos destacados */
+.highlight-1 h2,
+.highlight-2 h2,
+.highlight-3 h2 {
+  font-size: 20px; /* Tamaño de fuente */
+  margin-bottom: 10px; /* Margen inferior */
+}
+
+/* Estilos para los párrafos dentro de los elementos destacados */
+.highlight-1 p,
+.highlight-2 p,
+.highlight-3 p {
+  font-size: 16px; /* Tamaño de fuente */
+  margin-bottom: 20px; /* Margen inferior */
+}
+
+/* Estilos para los precios dentro de los elementos destacados */
+.highlight-1 .price,
+.highlight-2 .price,
+.highlight-3 .price {
+  font-size: 24px; /* Tamaño de fuente */
+  font-weight: bold; /* Negrita */
+}
+
+/* Ajustar tamaño de las imágenes para que sean cuadradas */
+.highlight-1 img,
+.highlight-2 img,
+.highlight-3 img {
+  max-width: 100%; /* Ancho máximo */
+  height: auto; /* Altura automática */
+  width: 200px; /* Ancho fijo */
+  height: 200px; /* Altura fija */
+  border-radius: 10px; /* Radio de borde */
+}
+
+/* Estilos para la información del producto */
+.product-info {
+  padding: 20px; /* Espaciado interno */
+}
+
+/* Estilos para los botones */
+.bn3637 {
+  display: inline-flex; /* Mostrar como flexbox */
+  align-items: center; /* Alinear elementos verticalmente */
+  justify-content: center; /* Alinear elementos horizontalmente */
+  padding: 0.7rem 2rem; /* Relleno */
+  font-family: "Poppins", sans-serif; /* Fuente */
+  font-weight: 700; /* Peso de la fuente */
+  font-size: 18px; /* Tamaño de fuente */
+  text-align: center; /* Alineación del texto */
+  text-decoration: none; /* Sin decoración de texto */
+  color: #020040; /* Color del texto */
+  backface-visibility: hidden; /* Visibilidad del elemento */
+  border: 0.3rem solid transparent; /* Borde transparente */
+  border-radius: 3rem; /* Radio de borde */
+}
+
+.bn36 {
+  border-color: #060606; /* Color del borde */
+  transition: transform 0.2s cubic-bezier(0.235, 0, 0.05, 0.95); /* Transición */
+}
+
+.bn36:hover {
+  transform: perspective(1px) scale3d(1.044, 1.044, 1) translateZ(0) !important; /* Efecto de escala */
+}
+
+/* Estilos para el footer */
+footer {
+  background-color: #333; /* Color de fondo */
+  color: #fff; /* Color del texto */
+  padding: 20px; /* Espaciado interno */
+  text-align: center; /* Alineación del texto */
+  font-family: "Merriweather Sans", sans-serif; /* Fuente */
+}
+
+/* Estilos para los enlaces en el footer */
+footer a {
+  color: #fff; /* Color del texto */
+  text-decoration:solid #020040 ; /* Sin decoración de texto */
+}
+
+/* Estilos para los enlaces en el footer al pasar el cursor */
+footer a:hover {
+  text-decoration: underline; /* Subrayado al pasar el cursor */
+}
+
+/* Estilos para el texto de neón */
+.neon-text {
+  font-family: "Merriweather Sans", sans-serif; /* Fuente */
+  font-size: 2em; /* Tamaño de fuente */
+  margin: 0px auto;
+  color: #ffffff; /* Color del texto */
+  text-align: center; /* Alineación del texto */
+  text-shadow: 0 0 5px rgba(0, 255, 249, 0.5), 0 0 15px rgba(0, 255, 249, 0.5),
+    0 0 30px rgba(0, 255, 249, 0.5), 0 0 50px rgba(0, 255, 249, 0.5),
+    0 0 75px rgba(0, 255, 249, 0.5), 0 0 100px rgba(0, 255, 249, 0.5),
+    0 0 150px rgba(0, 255, 249, 0.5); /* Sombra del texto con efecto de neón más suave */
+  animation: neon-pulse 2.0s infinite alternate; /* Animación de pulso */
+}
+
+/* Animación de pulso para el texto de neón */
+@keyframes neon-pulse {
+  from {
+    text-shadow: 0 0 5px rgba(0, 255, 249, 0.5), 0 0 15px rgba(0, 255, 249, 0.5),
+      0 0 30px rgba(0, 255, 249, 0.5), 0 0 50px rgba(0, 255, 249, 0.5),
+      0 0 75px rgba(0, 255, 249, 0.5), 0 0 100px rgba(0, 255, 249, 0.5),
+      0 0 150px rgba(0, 255, 249, 0.5); /* Sombra del texto con efecto de neón más suave */
+  }
+  to {
+    text-shadow: 0 0 3px rgba(0, 255, 249, 0.5), 0 0 10px rgba(0, 255, 249, 0.5),
+      0 0 20px rgba(0, 255, 249, 0.5), 0 0 30px rgba(0, 255, 249, 0.5),
+      0 0 50px rgba(0, 255, 249, 0.5), 0 0 60px rgba(0, 255, 249, 0.5),
+      0 0 90px rgba(0, 255, 249, 0.5); /* Sombra del texto con efecto de neón más suave */
+  }
+}

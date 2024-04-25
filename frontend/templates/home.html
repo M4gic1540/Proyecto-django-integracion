@@ -5,47 +5,143 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-    <section>
-        <article>
-            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active" id="highlight 1">
-                        <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
-                    </div>
-                    <div class="carousel-item" id="highlight 2">
-                        <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
-                    </div>
-                    <div class="carousel-item" id="highlight 3">
-                        <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
+
+<script src="{% static 'js/script.js' %}"></script>
+
+<body class="home">
+
+    <section class="carousel">
+        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" id="highlight1">
+                    <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item" id="highlight2">
+                    <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item" id="highlight3">
+                    <img src="https://dummyimage.com/550x100/000/fff" class="d-block w-100" alt="...">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="products">
+        <div class="container">
+            <h1 class="neon-text">Nuestros Productos</h1>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="highlight-1">
+                        <picture>
+                            <img src="{% static 'img/portada-gow4.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
                     </div>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
+                <div class="col-md-4">
+                    <div class="highlight-2">
+                        <picture>
+                            <img src="{% static 'img/portada-halo4.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="highlight-3">
+                        <picture>
+                            <img src="{% static 'img/portada-tlou2.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </article>
+        </div>
     </section>
+
+    <section class="products">
+        <div class="container">
+            <h1 class="neon-text">Mas Vendidos</h1>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="highlight-1">
+                        <picture>
+                            <img src="{% static 'img/portada-hk.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="highlight-2">
+                        <picture>
+                            <img src="{% static 'img/portada-ori.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="highlight-3">
+                        <picture>
+                            <img src="{% static 'img/pc/bf1.jpg' %}" alt="Products">
+                        </picture>
+                        <div class="product-info">
+                            <h2>Nombre del producto</h2>
+                            <p>Descripción: Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <p class="price">$ 0.00</p>
+                            <a href="#" class="bn3637 bn36">Comprar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2024 - E-commerce</p>
+    </footer>
 </body>
-</html>
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
     crossorigin="anonymous"></script>
-<script src="script.js"></script>
+
 {% endblock scripts %}
 
 {% endblock content %}

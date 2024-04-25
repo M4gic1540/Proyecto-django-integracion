@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Pedido</title>
+    <!-- Agrega aquí tus enlaces a archivos CSS si los necesitas -->
+</head>
+<script>
+    function redirectToTransactionForm() {
+        // Obtener el ID del pedido y el total del pedido desde el HTML
+        var pedidoId = "{{ pedido.id }}";
+        var totalPedido = "{{ pedido.get_total }}";
+
+        // Redirigir al formulario de transacción con los datos del pedido como parámetros en la URL
+        window.location.href = `/frontend/carrito/?pedido_id=${pedidoId}&amount=${totalPedido}`;
+    }
+</script>
+
+<body>
+
+    <h1>Detalle de Pedido</h1>
+
+    {% if pedido %}
+    <p><strong>ID del Pedido:</strong> {{ pedido.id }}</p>
+    <p><strong>Fecha de Creación:</strong> {{ pedido.fecha_creacion }}</p>
+    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+    <p><strong>Total:</strong> {{ pedido.get_total }}</p>
+    <!-- Agrega aquí más detalles del pedido según tus necesidades -->
+    <button onclick="redirectToTransactionForm()">Ir al Formulario de Transacción</button>
+    {% else %}
+    <p>No se encontró el pedido solicitado.</p>
+    {% endif %}
+
+    <!-- Agrega aquí cualquier otro contenido que desees mostrar en la página -->
+
+</body>
+
+</html>

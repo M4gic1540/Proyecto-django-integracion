@@ -1,38 +1,61 @@
 from rest_framework import serializers
-from .models import Usuario, Producto, Categoria, Pedido, ItemPedido
+from .models import Usuario, Producto, Categoria, Pedido, ItemPedido, Carrito, ItemCarrito
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'nombre', 'apellido', 'estado', 'credito', 'imagen']
+        fields = ['id', 'username', 'email', 'nombre', 'apellido', 'estado', 'credito', 'imagen', 'direccion', 'region', 'comuna', 'telefono']
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
-        fields = ['id', 'nombre', 'descripcion']
+        fields = ['nombre', 'descripcion']
+
 
 class ProductoSerializer(serializers.ModelSerializer):
-    categoria = CategoriaSerializer(read_only=True)
-    categoria_id = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all(), source='categoria', write_only=True)
+    categoria = CategoriaSerializer()
 
     class Meta:
         model = Producto
-        fields = ['id', 'nombre', 'descripcion', 'precio', 'stock', 'categoria', 'categoria_id', 'imagen']
+        fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
 
-class PedidoSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(read_only=True)
-    usuario_id = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), source='usuario', write_only=True)
-
-    class Meta:
-        model = Pedido
-        fields = ['id', 'usuario', 'usuario_id', 'fecha_creacion', 'actualizado_en', 'estado', 'completado']
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
-    pedido = PedidoSerializer(read_only=True)
-    pedido_id = serializers.PrimaryKeyRelatedField(queryset=Pedido.objects.all(), source='pedido', write_only=True)
-    producto = ProductoSerializer(read_only=True)
-    producto_id = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all(), source='producto', write_only=True)
+    producto = ProductoSerializer()
 
     class Meta:
         model = ItemPedido
-        fields = ['id', 'pedido', 'pedido_id', 'producto', 'producto_id', 'precio', 'cantidad']
+        fields = ['producto', 'precio', 'cantidad']
+
+
+class PedidoSerializer(serializers.ModelSerializer):
+    items = ItemPedidoSerializer(many=True)
+
+    class Meta:
+        model = Pedido
+        fields = ['id', 'fecha_creacion', 'actualizado_en', 'estado', 'completado', 'items']
+
+
+class ItemCarritoSerializer(serializers.ModelSerializer):
+    producto = ProductoSerializer()
+
+    class Meta:
+        model = ItemCarrito
+        fields = ['producto', 'precio', 'cantidad']
+
+class CarritoSerializer(serializers.ModelSerializer):
+    usuario = UsuarioSerializer()
+    items = ItemCarritoSerializer(many=True)
+
+    class Meta:
+        model = Carrito
+        fields = ['usuario', 'creado_en', 'actualizado_en', 'items']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        carrito = Carrito.objects.create(**validated_data)
+        for item_data in items_data:
+            producto_data = item_data.pop('producto')
+            producto, _ = Producto.objects.get_or_create(**producto_data)
+            ItemCarrito.objects.create(carrito=carrito, producto=producto, **item_data)
+        return carrito

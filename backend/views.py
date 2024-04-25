@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from requests import Response
-from .forms import UserRegisterForm, ProductoForm, CategoriaForm,PedidoForm
+from .forms import UserRegisterForm, ProductoForm, CategoriaForm, PedidoForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Usuario, ItemPedido, Producto, Categoria, Pedido
@@ -12,6 +12,7 @@ from rest_framework import status
 from transbank.error.transbank_error import TransbankError
 from rest_framework.decorators import api_view
 import requests
+from django.db.models import ProtectedError
 # Create your views here.
 
 
@@ -125,8 +126,6 @@ def registro(request):
     context = {'form': form}
     return render(request, 'usuario/registro.html', context)
 
-
-@login_required(login_url='login')
 def agregarUsuario(request):
     if request.user.is_superuser == False:
         return redirect('panel')
@@ -146,6 +145,10 @@ def agregarUsuario(request):
             usuario.apellido = request.POST['apellido']
             usuario.username = request.POST['username']
             usuario.email = request.POST['email']
+            usuario.telefono = request.POST['telefono']
+            usuario.direccion = request.POST['direccion']
+            usuario.comuna = request.POST['comuna']
+            usuario.region = request.POST['region']
             usuario.estado = request.POST['estado']
             usuario.credito = request.POST['credito']
             usuario.set_password(clave1)
@@ -184,8 +187,8 @@ def deslogear(request):
     return redirect('login')
 
 
-#@login_required(login_url='login')
-#def listarUsuarios(request):
+# @login_required(login_url='login')
+# def listarUsuarios(request):
 #    if request.user.is_superuser == False:
 #        return redirect('panel')
 #    usuarios = Usuario.objects.all()
@@ -194,9 +197,10 @@ def deslogear(request):
 
 
 # VISTAS PARA PRODUCTOS
-
+@login_required(login_url='login')
 def listar_usuarios(request):
-    response = requests.get('http://localhost:8000/api/usuarios/listar/')  # Asegúrate de usar la URL correcta de tu API
+    # Asegúrate de usar la URL correcta de tu API
+    response = requests.get('http://localhost:8000/api/usuarios/listar/')
     usuarios = response.json() if response.status_code == 200 else []
     return render(request, 'usuario/crud/listar_usuarios.html', {'usuarios': usuarios})
 
@@ -213,6 +217,11 @@ def agregar_producto(request):
     return render(request, 'productos/agregar_producto.html', {'form': form})
 
 
+def listar_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'productos/listar_productos.html', {'productos': productos})
+
+
 def editar_producto(request, producto_id):
     producto = Producto.objects.get(id=producto_id)
     if request.method == 'POST':
@@ -224,6 +233,25 @@ def editar_producto(request, producto_id):
     else:
         form = ProductoForm(instance=producto)
     return render(request, 'productos/editar_producto.html', {'form': form})
+
+
+def eliminar_producto(request, producto_id):
+    producto = Producto.objects.get(id=producto_id)
+    if request.method == 'POST':
+        try:
+            producto.delete()
+            messages.success(request, 'Producto eliminado correctamente.')
+            return redirect('listar_productos')
+        except ProtectedError as e:
+            related_objects = e.protected_objects
+            for obj in related_objects:
+                obj.delete()
+            producto.delete()
+            messages.success(
+                request, 'Producto eliminado correctamente junto con sus elementos relacionados.')
+            return redirect('listar_productos')
+    else:
+        return render(request, 'productos/eliminar_producto.html', {'producto': producto})
 
 
 # VISTAS PARA CATEGORIAS
@@ -265,12 +293,14 @@ def listar_items_pedido(request):
     items = ItemPedido.objects.all()
     return render(request, 'items_pedido/listar_items.html', {'items': items})
 
+
 @login_required(login_url='login')
 def agregar_item_pedido(request):
     if request.method == 'POST':
         form = PedidoForm(request.POST)
         if form.is_valid():
-            nuevo_pedido = Pedido()  # Suponiendo que el modelo Pedido no necesita campos obligatorios
+            # Suponiendo que el modelo Pedido no necesita campos obligatorios
+            nuevo_pedido = Pedido()
             nuevo_pedido.save()  # Guardar el nuevo pedido para generar un id
             item_pedido = form.save(commit=False)
             item_pedido.pedido = nuevo_pedido
@@ -295,3 +325,88 @@ def editar_item_pedido(request, item_id):
         form = PedidoForm(instance=item)
     return render(request, 'items_pedido/editar_item.html', {'form': form})
 
+
+@login_required
+def crear_pedido(request):
+    if request.method == 'POST':
+        # Obtener los valores del formulario de manera segura
+        producto_id = request.POST.get('producto')
+        cantidad = request.POST.get('cantidad')
+
+        # Verificar si se recibieron ambos valores
+        if producto_id is None or cantidad is None:
+            return render(request, 'error.html', {'message': 'Se requieren ambos campos: producto y cantidad'})
+
+        try:
+            # Convertir la cantidad a entero
+            cantidad = int(cantidad)
+        except ValueError:
+            return render(request, 'error.html', {'message': 'La cantidad debe ser un número entero válido'})
+
+        # Verificar si el producto existe
+        try:
+            producto = Producto.objects.get(pk=producto_id)
+        except Producto.DoesNotExist:
+            return render(request, 'error.html', {'message': 'El producto seleccionado no existe'})
+
+        # Verificar si hay suficiente stock
+        if cantidad > producto.stock:
+            return render(request, 'error.html', {'message': 'No hay suficiente stock disponible para este producto'})
+
+        # Crear el pedido asociado al usuario actual
+        pedido = Pedido.objects.create(usuario=request.user)
+        pedido.items.create(producto=producto,
+                            precio=producto.precio, cantidad=cantidad)
+
+        # Actualizar el stock del producto
+        producto.stock -= cantidad
+        producto.save()
+
+        return redirect('detalle_pedido_api', pedido_id=pedido.id)
+    else:
+        # Si la solicitud no es POST, renderiza el formulario con todos los productos
+        productos = Producto.objects.all()
+        return render(request, 'carrito/check-in.html', {'productos': productos})
+
+
+def detalle_pedido(request, pedido_id):
+    try:
+        pedido = Pedido.objects.get(pk=pedido_id)
+        # Aquí puedes renderizar la plantilla HTML para mostrar los detalles del pedido
+        return render(request, 'carrito/detalle_pedido.html', {'pedido': pedido})
+    except Pedido.DoesNotExist:
+        # Si no se encuentra el pedido, renderiza una página de error
+        return render(request, 'error.html', {'message': 'El pedido solicitado no existe'})
+
+
+def detalle_pedido_api(request):
+    try:
+        pedido = Pedido.objects.all()
+        # Aquí puedes renderizar la plantilla HTML para mostrar los detalles del pedido
+        return render(request, 'carrito/pedidos-totales.html', {'pedido': pedido})
+    except Pedido.DoesNotExist:
+        # Si no se encuentra el pedido, renderiza una página de error
+        return render(request, 'error.html', {'message': 'El pedido solicitado no existe'})
+
+
+def obtener_pedidos(usuario_id):
+    # URL de la API de pedidos filtrada por usuario
+    url = f'http://localhost:8000/api/pedidos/?usuario_id={usuario_id}'
+
+    try:
+        # Realiza la solicitud GET a la API
+        response = requests.get(url)
+
+        # Verifica si la solicitud fue exitosa (código de estado 200)
+        if response.status_code == 200:
+            # Retorna los datos de los pedidos en formato JSON
+            return response.json()
+        else:
+            # Si la solicitud no fue exitosa, muestra el código de estado
+            print(
+                f'Error al obtener los pedidos. Código de estado: {response.status_code}')
+            return None
+    except requests.exceptions.RequestException as e:
+        # Maneja errores de conexión u otros errores relacionados con la solicitud
+        print(f'Error de conexión: {e}')
+        return None

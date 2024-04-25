@@ -5,11 +5,11 @@ from rest_framework import status
 from transbank.error.transbank_error import TransbankError
 from transbank.webpay.webpay_plus.transaction import Transaction as TransbankTransaction
 from .models import Transaction
-from .serializers import TransactionSerializer, ProductoSerializer, UsuarioSerializer
+from .serializers import TransactionSerializer, ProductoSerializer, UsuarioSerializer,CategoriaSerializer, ProductoSerializer, PedidoSerializer, CarritoSerializer
 from django.conf import settings
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from rest_framework import generics
-from backend.models import Producto, Usuario
+from backend.models import Producto, Usuario,Categoria, Producto, Pedido, Carrito
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -137,3 +137,49 @@ def payment_success(request):
 
 
 # Asegúrate de tener las plantillas payment_success.html y payment_error.html para manejar estas respuestas.
+
+class CategoriaList(generics.ListCreateAPIView):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+
+class CategoriaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+
+class ProductoList(generics.ListCreateAPIView):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+
+class ProductoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+
+class PedidoList(generics.ListCreateAPIView):
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoSerializer
+
+class PedidoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoSerializer
+
+class CarritoList(generics.ListCreateAPIView):
+    queryset = Carrito.objects.all()
+    serializer_class = CarritoSerializer
+
+class CarritoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Carrito.objects.all()
+    serializer_class = CarritoSerializer
+
+
+class CarritoAPIView(APIView):
+    def get(self, request):
+        carritos = Carrito.objects.all()
+        serializer = CarritoSerializer(carritos, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CarritoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

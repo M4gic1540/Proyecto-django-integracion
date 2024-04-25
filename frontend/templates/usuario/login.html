@@ -1,13 +1,92 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Iniciar Sesión{% endblock %}
+
 {% block content %}
-<img id="img-login" src="/static/imagenes/img-login.jpg">
+<style>
+    /* Estilos Generales */
+
+
+/* Estilización del contenedor del formulario */
+#contenedor-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Estilización del formulario */
+form {
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+}
+
+/* Estilos para los campos del formulario */
+.input-field {
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Botón de envío */
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Links de login alternativos */
+a.center {
+    display: block;
+    margin: 10px 0;
+    text-align: center;
+    color: #333;
+}
+
+a.center:hover {
+    color: #555;
+}
+
+/* Texto de registro y recuperación de contraseña */
+p.center {
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* Imagen de fondo para el login */
+#img-login {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.6;
+}
+
+</style>
 <div id="contenedor-login" class="container">
     <div class="row">
         <form method="POST" class="col s6">
             {% csrf_token %}
             <div class="row">
+                <h1>Iniciar Sesión</h1>
                 <div style="margin-top: 30px;" class="input-field col s12">
                     <label for="usuario">Nombre de usuario: </label>
                     <input type="text" name="usuario" id="idUsuario">
