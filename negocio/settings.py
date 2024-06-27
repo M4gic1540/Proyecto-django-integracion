@@ -37,12 +37,14 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-@!w9xq9n-+!5z)5x0m!
 # Configuraciones de Transbank
 TRANSBANK_API_KEY = os.getenv('TRANSBANK_API_KEY')
 TRANSBANK_COMMERCE_CODE = os.getenv('TRANSBANK_COMMERCE_CODE')
-TRANSBANK_ENVIRONMENT = 'INTEGRATION'  # Cambiar a 'PRODUCTION' en producción
+TRANSBANK_ENVIRONMENT = 'PRODUCTION'  # Cambiar a 'PRODUCTION' en producción
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["e-commerce-games.fly.dev", "127.0.0.1", "localhost"]
+
+CSRF_TRUSTED_ORIGINS = ["https://e-commerce-games.fly.dev"]
 
 
 # Application definition
@@ -59,6 +61,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "backend",
     "frontend",
+    "whitenoise",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "negocio.urls"
@@ -137,7 +141,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "frontend/static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
